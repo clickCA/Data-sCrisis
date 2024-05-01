@@ -5,7 +5,9 @@
 *.txt
 *.rar
 *.zip
-/data/!requirements.txt
+/data
+!requirements.txt
+/extracted
 
 # Ignore model files
 *.h5
