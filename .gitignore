@@ -3,7 +3,9 @@
 *.xlsx
 *.json
 *.txt
-
+*.rar
+*.zip
+/data/
 # Ignore model files
 *.h5
 *.pkl
