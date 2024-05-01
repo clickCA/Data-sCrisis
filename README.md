@@ -20,7 +20,7 @@ This project is a data science project that aims to [provide a brief description
 
 install the required packages using the following command:
 ```bash
-pip install -r requirements.txt
+pip install -r src/requirements.txt
 ```
 
 ## Usage
