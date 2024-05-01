@@ -3,6 +3,7 @@
 *.xlsx
 *.json
 *.txt
+!requirements.txt
 
 # Ignore model files
 *.h5
