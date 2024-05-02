@@ -47,7 +47,7 @@ Some useful tools for viewing JSON data (You can use this to see the whole objec
 | abstracts-retrieval-response.item.bibrecord.head.abstracts                  | String        | The abstract of the paper                                                                                              | String                | abstracts                                           |
 | abstracts-retrieval-response.item.bibrecord.tail.bibliography.reference     | List          | The List references of the paper                                                                                       | String                | references                                          |
 | abstracts-retrieval-response.item.bibrecord.tail.bibliography.@refcount     | Integer       | The number of references                                                                                               | Integer               | refcount                                            |
-| abstracts-retrieval-response.affiliation                                    | List          | The List of afflication -contain  affiliation-city, <br>affilname, <br>affiliation-country                             | String                | affiliations                                        |
+| abstracts-retrieval-response.affiliation                                    | List          | The List of afflication -contain  affiliation-city, affilname, affiliation-country                             | String                | affiliations                                        |
 | abstracts-retrieval-response.coredata.citedby-count                         | Integer       | The number of                                                                                                          | Integer               | a.citedby-count                                     |
 | abstracts-retrieval-response.coredata.prism:issn : "14683288 00175749"      | String        | The issn number of this publication                                                                                    | String                | issn                                                |
 | abstracts-retrieval-response.coredata.eid                                   | String        | This should be the primary key of this                                                                                 | String                | eid                                                 |
@@ -57,15 +57,17 @@ Some useful tools for viewing JSON data (You can use this to see the whole objec
 | * _PRISM_ is a set of metadata vocabularies designed to describe _magazine_ | -             | -                                                                                                                      | -                     | -                                                   |
 | abstracts-retrieval-response.coredata.prism:CoverDate                       | String        | The date displayed on the cover                                                                                        | String                |                                                     |
 | abstracts-retrieval-response.coredata.prism:aggregationType                 | String        | The aggregation Type                                                                                                   | String                | aggregation-type                                    |
-| abstracts-retrieval-response.coredata.prism:publicationName                 | String        | The publication name <br>*the title is the title of the article, and the publication name is the name of the journal.* | String                | publication-name                                    |
+| abstracts-retrieval-response.coredata.prism:publicationName                 | String        | The publication name _the title is the title of the article, and the publication name is the name of the journal._ | String                | publication-name                                    |
 | abstracts-retrieval-response.language.@xml:lang                             | String        | The language of this journal                                                                                           | String                | language                                            |
 | abstracts-retrieval-response.subject-areas.subject-area.$                   | List          | List of related subject areas                                                                                          | String                | subject-area                                        |
 | abstracts-retrieval-response.authors.author.preferred-name.ce:given-name    | List          | List of authors name                                                                                                   | String                | Will merge with surname and initial call "Fullname" |
 | abstracts-retrieval-response.authors.author.preferred-name.ce:surname       | List          | List of authors surname                                                                                                | String                | -                                                   |
 | abstracts-retrieval-response.authors.author.preferred-name.ce:initials      | List          | List of authors's                                                                                                      | String                | -                                                   |
+
 ## Methods
 
 ### Data extraction
+
 You can rerun the data extraction process by running the following command:
 
 ```bash
@@ -74,6 +76,7 @@ sh gen_json.sh
 python src/data_extraction.py
 python src/merge_data.py
 ```
+
 [Explain the methods or algorithms used in your project, including any data analysis or machine learning techniques.]
 
 ## Results
