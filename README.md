@@ -70,6 +70,7 @@ You can rerun the data extraction process by running the following command:
 
 ```bash
 unrar x Data 2018-2023.rar 
+sh gen_json.sh
 python src/data_extraction.py
 python src/merge_data.py
 ```
