@@ -35,8 +35,9 @@ pip install -r src/requirements.txt
 Some useful tools for viewing JSON data (You can use this to see the whole object and understand the structure of the data):
 <https://jsonviewer.stack.hu/>
 
-I have extracted the data from the following link:
-<https://drive.google.com/drive/folders/1Qndie0dRyqe6pHoJK-KiPqgGBic6wpDn>
+- The **original** data from the following [link](<https://drive.google.com/drive/folders/1Qndie0dRyqe6pHoJK-KiPqgGBic6wpDn>):
+
+- The **extracted** data can download via the following [link](https://drive.google.com/file/d/1FgrptkisPslqzkTcDu2PJbZEJlFwyB--/view?usp=sharing):
 
 **the important field that will be extract**:
 
