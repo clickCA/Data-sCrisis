@@ -1,57 +1,144 @@
-import json
-import pyarrow.feather as feather
-import pyarrow
-import pprint
-def extract_data_to_feather(json_file, feather_file):
+def extract_fields(json_path):
     """Extracts target data from a JSON file and writes it to a feather file."""
 
-    with open(json_file, 'r') as f:
+    with open(json_path, 'r') as f:
         data = json.load(f)
 
     # Access relevant data structures within the JSON
-    abstracts_retrieval_response = data['abstracts-retrieval-response']
-    item = abstracts_retrieval_response['item']
-    bibrecord = item['bibrecord']
-    head = bibrecord['head']
-    tail = bibrecord['tail']
-    pprint.pp(head)
-    # Extract target data
-    # title = head['citation-title']
-    # abstract = head['abstracts']
-    # date_of_publication = head['source']['publicationdate']  # Consider further processing for desired format
-    # affiliations = []
-    # for author_group in head.get('author-group', []):
-    #     for aff in author_group.get('affiliation', []):
-    #         print(aff)
-    # citations = tail.get('bibliography', {}).get('reference', [])  # Handle potential absence of bibliography
-    # keywords = head['citation-info'].get('author-keywords', {}).get('author-keyword', None)
+    abstracts_retrieval_response = data.get('abstracts-retrieval-response', {}) if data else {}
+    item = abstracts_retrieval_response.get('item', {}) if abstracts_retrieval_response else {}
+    bibrecord = item.get('bibrecord', {}) if item else {}
+    head = bibrecord.get('head', {}) if bibrecord else {}
+    tail = bibrecord.get('tail', {}) if bibrecord else {}
+    coredata = abstracts_retrieval_response.get('coredata', {}) if abstracts_retrieval_response else {}
+    authors = abstracts_retrieval_response.get('authors', {}).get('author', []) if abstracts_retrieval_response else []
+    bibliography = tail.get('bibliography', {}) if tail else {}
+    references = tail.get('bibliography', {}).get('reference', []) if tail else []
+    
+    ref = ''
+    if isinstance(references, list):
+        for r in references:
+            ref += r.get('ref-fulltext', '') + ', '
+    else:
+        ref = references.get('ref-fulltext', '') + ', '
+    
+    afflication = abstracts_retrieval_response.get('affiliation', [])
+    aff = ''
+    if isinstance(afflication, dict):
+            afflication_city = afflication.get('affiliation-city', '') if afflication.get('affiliation-city', '')  else ''
+            afflication_country = afflication.get('affiliation-country', '') if afflication.get('affiliation-country', '') else ''
+            affilname = afflication.get('affilname', '') if afflication.get('affilname', '') else ''
+            aff += afflication_city + ' ' + afflication_country + ' ' + affilname + ', '
+  
+    else:
+        for a in afflication:
+            afflication_city = a.get('affiliation-city', '') if a.get('affiliation-city', '')  else ''
+            afflication_country = a.get('affiliation-country', '') if a.get('affiliation-country', '') else ''
+            affilname = a.get('affilname', '') if a.get('affilname', '') else ''
+            aff += afflication_city + ' ' + afflication_country + ' ' + affilname + ', '
+  
+    subject_area = abstracts_retrieval_response.get('subject-areas', {}).get('subject-area', [])
+    sub = ''
+    for i, s in enumerate(subject_area):
+        sub += s.get('$', '')
+        if i != len(subject_area) - 1:
+            sub += ', '
+            
+    fullname = ''
+    for i, author in enumerate(authors):
+        preferred_name = author.get('preferred-name', {})
+        fullname += preferred_name.get('ce:indexed-name', '')
+        if i != len(authors) - 1:
+            fullname += ', '
+    
+    coredata = abstracts_retrieval_response.get('coredata', {})
+    issn_or_isbn = ''
+    if 'prism:issn' in coredata:
+        issn_or_isbn = coredata.get('prism:issn', '')
+    else:
+        isbn = coredata.get('prism:isbn', '')
+        if isinstance(isbn, list):
+            for i, e in enumerate(isbn):
+                issn_or_isbn += e.get('$', '')
+                if i != len(isbn) - 1:
+                    issn_or_isbn += ', '
+        else:
+            issn_or_isbn = isbn
+    
+    citation_title = head.get('citation-title', '') if head.get('citation-title', '') else ''
+    abstracts = head.get('abstracts', '') if head.get('abstracts', '') else ''
+    references = ref
+    refcount = bibliography.get('@refcount', '') if bibliography.get('@refcount', '') else 0
+    affiliations = aff
+    citedby_count = coredata.get('citedby-count', '') if coredata.get('citedby-count', '') else ''
+    issn_or_isbn = issn_or_isbn
+    eid = coredata.get('eid', '') if coredata.get('eid', '') else ''
+    journal_title = coredata.get('dc:title', '') if coredata.get('dc:title', '') else ''
+    description = coredata.get('dc:description', '') if coredata.get('dc:description', '') else ''
+    publisher = coredata.get('dc:publisher', '') if coredata.get('dc:publisher', '') else ''
+    cover_date = coredata.get('prism:coverDate', '') if coredata.get('prism:coverDate', '') else ''
+    aggregation_type = coredata.get('prism:aggregationType', '') if coredata.get('prism:aggregationType', '') else ''
+    publication_name = coredata.get('prism:publicationName', '') if coredata.get('prism:publicationName', '') else ''
+    language = abstracts_retrieval_response.get('language', {}) if abstracts_retrieval_response.get('language', {}) else {}
+    language = language.get('@xml:lang', '') if language else ''
+    subject_area = sub
+    fullname = fullname
+    
+    data_dict = {
+        'citation-title': citation_title,
+        'abstracts': abstracts,
+        'references': ref,
+        'refcount': refcount,
+        'affiliations': aff,
+        'citedby-count': citedby_count,
+        'issn-or-isbn': issn_or_isbn,
+        'eid': eid,
+        'journal-title': journal_title,
+        'description': description,
+        'publisher': publisher,
+        'cover-date': cover_date,
+        'aggregation-type': aggregation_type,
+        'publication-name': publication_name,
+        'language': language,
+        'subject-area': sub,
+        'fullname': fullname
+    }
+    
+    
+    return data_dict
 
-    # # Process document classification codes (assuming they are in 'enhancement')
-    # classification_codes = []
-    # if 'enhancement' in head:
-    #     for classificationgroup in head['enhancement']['classificationgroup']:
-    #         print((classificationgroup))
-    #         # for classification in classificationgroup['classifications']:
-    #             # classification_codes.append(classification['classification-code'])
+import pandas as pd
+import os
+import json
+if __name__ == '__main__':
+    # Define the range of years
+    years = range(2018, 2024)
 
-    # # Create a list of dictionaries for each record
-    # records = [
-    #     {
-    #         'Title': title,
-    #         'Abstract': abstract,
-    #         'Document Classification Codes': classification_codes,
-    #         'Date of Publication': date_of_publication,
-    #         'Affiliations': affiliations,
-    #         'Citations': citations,
-    #         'Keywords': keywords
-    #     }
-    # ]
+    # Initialize an empty DataFrame to store all the data
+    all_data = pd.DataFrame()
 
-    # # Create a PyArrow table and write to feather file
-    # table = pyarrow.Table.from_pylist(records)
-    # feather.write_feather(table, feather_file)
+    # Loop over the years
+    for year in years:
+        # Get all the JSON files for the year
+        json_files = [f for f in os.listdir(f'../data/{year}') if f.endswith('.json')]
+        
+        # Loop over the JSON files
+        for json_file in json_files:
+            # Read the JSON data
+            json_path = f'../data/{year}/{json_file}'
+            # # Extract the required fields
+            data_dict = extract_fields(json_path)
+            
+            # # Read the data into a DataFrame
+            df = pd.DataFrame([data_dict])
 
-# Example usage
-json_file_path = 'data/2018/201802791.json'
-feather_file_path = 'extract_data/2018/201802791.feather'
-extract_data_to_feather(json_file_path, feather_file_path)
+            # Remove the .json extension from the file name
+            csv_file_name = json_file[:-5]
+
+            # Write the DataFrame to a CSV file without the .json extension
+            df.to_csv(f'../data/{year}/{csv_file_name}.csv', index=False)
+            # # Append the data to the main DataFrame
+            # all_data = pd.concat([all_data, df], ignore_index=True)
+            # Write the DataFrame to a CSV file
+            # all_data = all_data.append(df, ignore_index=True)
+    
