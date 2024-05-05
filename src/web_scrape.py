@@ -1,16 +1,13 @@
 import os
-
-# import requests
+import json
 import logging
-
-# import json
+import re
 from pythonjsonlogger import jsonlogger
 from dotenv import load_dotenv
 from elsapy.elsclient import ElsClient
 from elsapy.elsprofile import ElsAuthor, ElsAffil
 from elsapy.elsdoc import FullDoc, AbsDoc
 from elsapy.elssearch import ElsSearch
-import re
 
 # from bs4 import BeautifulSoup
 
@@ -23,7 +20,7 @@ logger.addHandler(logHandler)
 
 API_KEY = os.getenv("ELSEVIER_API_KEY")
 TIME_OUT = 10
-
+FILE_STORE_SCOPUS_IDS = "scopus_ids.json"
 ## Initialize client
 client = ElsClient(API_KEY)
 
@@ -89,6 +86,19 @@ def find_scopus_id_in_serch_result(search_result):
         return extracted_number
 
 
+def write_scopus_list_to_file(scopus_ids):
+    scopus_ids = json.dumps(scopus_ids)
+    with open(FILE_STORE_SCOPUS_IDS, "w") as f:
+        f.write(scopus_ids)
+    print(len(scopus_ids), "Data has been saved to:", FILE_STORE_SCOPUS_IDS)
+
+
+def read_scopus_list_from_file():
+    with open(FILE_STORE_SCOPUS_IDS, "r") as f:
+        scopus_ids = json.load(f)
+    return scopus_ids
+
+
 def search_scopus(get_all=False, count=25):
     """search scopus for author
 
@@ -101,25 +111,22 @@ def search_scopus(get_all=False, count=25):
     )
     doc_srch.execute(client, get_all=get_all, count=count)
     print("doc_srch has", len(doc_srch.results), "results.")
+    scopus_ids = []
     for doc in doc_srch.results:
-        print("scopus_id_raw", doc["dc:identifier"])
         scopus_id = find_scopus_id_in_serch_result(doc["dc:identifier"])
-        print("scopus_id", scopus_id)
-        read_scopus_abstract(scopus_id)
-        print("Finished reading scopus")
-        print("=====================================")
+        scopus_ids.append(scopus_id)
+    return scopus_ids
 
 
 def main():
-    # ? Search something
-    search_scopus(False, 5)
-    # ? Using this to be a core map old data 1-1
-    # read_scopus_abstract("85170238281")
-
-    # read_affiliations("60091507")
-    # read_science_direct_doi("10.1016/j.ijbiomac.2023.126316")
-    # read_science_direct_pii("S1674927814000082")
-    return
+    # ? Search scopus that published in 2024 and in Thailand
+    scopus_ids = search_scopus(True, 2000)
+    write_scopus_list_to_file(scopus_ids)
+    # ? Find affiliations by ID
+    # scopus_list = read_scopus_list_from_file()
+    # for scopus_id in scopus_list:
+    #     print(scopus_id)
+    #     read_scopus_abstract(scopus_id)
 
 
 if __name__ == "__main__":
