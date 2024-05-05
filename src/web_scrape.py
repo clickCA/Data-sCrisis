@@ -118,15 +118,23 @@ def search_scopus(get_all=False, count=25):
     return scopus_ids
 
 
+def select_batch(scopus_list, batch_size):
+    # if batch_number == 1: scopus_list[0:25], batch_size == 2 scopus_list[25:50]
+    print("returning batch number", batch_size, "from", len(scopus_list), "scopus ids.")
+    return scopus_list[(batch_size - 1) * 25 : batch_size * 25]
+
+
 def main():
     # ? Search scopus that published in 2024 and in Thailand
-    scopus_ids = search_scopus(True, 2000)
-    write_scopus_list_to_file(scopus_ids)
+    # scopus_ids = search_scopus(True, 2000)
+    # write_scopus_list_to_file(scopus_ids)
     # ? Find affiliations by ID
-    # scopus_list = read_scopus_list_from_file()
-    # for scopus_id in scopus_list:
-    #     print(scopus_id)
+    scopus_list = read_scopus_list_from_file()
+    selected_scopus_list = select_batch(scopus_list, 2)
+    for scopus_id in selected_scopus_list:
+        print(scopus_id)
     #     read_scopus_abstract(scopus_id)
+    # read_scopus_abstract("85181840759")
 
 
 if __name__ == "__main__":
