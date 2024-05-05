@@ -21,7 +21,7 @@ logger.addHandler(logHandler)
 API_KEY = os.getenv("ELSEVIER_API_KEY")
 TIME_OUT = 10
 FILE_STORE_SCOPUS_IDS = "scopus_ids.json"
-BATCH_SIZE = 120
+BATCH_SIZE = 100
 ## Initialize client
 client = ElsClient(API_KEY)
 
@@ -142,8 +142,8 @@ def main():
     # write_scopus_list_to_file(scopus_ids)
     # ? Find affiliations by ID
     scopus_list = read_scopus_list_from_file()
-    # TODO Last run batch 2 size 120
-    selected_scopus_list = select_batch(scopus_list, 3, BATCH_SIZE)
+    selected_scopus_list = select_batch(scopus_list, 1, BATCH_SIZE)
+    # selected_scopus_list = select_batch(scopus_list, 1, 1616)
     for scopus_id in selected_scopus_list:
         read_scopus_abstract(scopus_id)
 
