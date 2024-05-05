@@ -27,3 +27,6 @@ __pycache__/
 
 # Ignore environment file
 .env
+
+# Ignore old folders
+old/

@@ -21,7 +21,7 @@ logger.addHandler(logHandler)
 API_KEY = os.getenv("ELSEVIER_API_KEY")
 TIME_OUT = 10
 FILE_STORE_SCOPUS_IDS = "scopus_ids.json"
-BATCH_SIZE = 50
+BATCH_SIZE = 120
 ## Initialize client
 client = ElsClient(API_KEY)
 
@@ -88,10 +88,10 @@ def find_scopus_id_in_serch_result(search_result):
 
 
 def write_scopus_list_to_file(scopus_ids):
+    print(len(scopus_ids), "Data has been saved to:", FILE_STORE_SCOPUS_IDS)
     scopus_ids = json.dumps(scopus_ids)
     with open(FILE_STORE_SCOPUS_IDS, "w") as f:
         f.write(scopus_ids)
-    print(len(scopus_ids), "Data has been saved to:", FILE_STORE_SCOPUS_IDS)
 
 
 def read_scopus_list_from_file():
@@ -107,7 +107,7 @@ def search_scopus(get_all=False, count=25):
         auth_name (_type_): _description_
     """
     doc_srch = ElsSearch(
-        'AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND ( LIMIT-TO ( SUBJAREA , "ENGI" ) )',
+        "AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND SUBJAREA ( engi )",
         "scopus",
     )
     doc_srch.execute(client, get_all=get_all, count=count)
@@ -120,7 +120,10 @@ def search_scopus(get_all=False, count=25):
 
 
 def select_batch(scopus_list, batch_number, batch_size=25):
-    # if batch_number == 1: scopus_list[0:25], batch_size == 2 scopus_list[25:50]
+    if batch_number < 1:
+        raise ValueError("batch_number should be greater than 0")
+    if batch_size < 1:
+        raise ValueError("batch_size should be greater than 0")
     print(
         "returning batch number",
         batch_number,
@@ -135,15 +138,14 @@ def select_batch(scopus_list, batch_number, batch_size=25):
 
 def main():
     # ? Search scopus that published in 2024 and in Thailand
-    # scopus_ids = search_scopus(True, 2000)
+    # scopus_ids = search_scopus(False, 2000)
     # write_scopus_list_to_file(scopus_ids)
     # ? Find affiliations by ID
     scopus_list = read_scopus_list_from_file()
-    selected_scopus_list = select_batch(scopus_list, 1, BATCH_SIZE)
+    # TODO Last run batch 2 size 120
+    selected_scopus_list = select_batch(scopus_list, 3, BATCH_SIZE)
     for scopus_id in selected_scopus_list:
-        print(scopus_id)
-    #     read_scopus_abstract(scopus_id)
-    # read_scopus_abstract("85181840759")
+        read_scopus_abstract(scopus_id)
 
 
 if __name__ == "__main__":
