@@ -77,23 +77,24 @@ def read_science_direct_doi(doi):
         print("Read document failed.")
 
 
-def search_scopus(auth_name):
+def search_scopus(get_all=False, count=25):
     """search scopus for author
 
     Args:
         auth_name (_type_): _description_
     """
     doc_srch = ElsSearch(
-        "AFFIL(dartmouth) AND AUTHOR-NAME(lewis) AND PUBYEAR > 2023", "scopus"
+        'AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND ( LIMIT-TO ( SUBJAREA , "ENGI" ) )',
+        "scopus",
     )
-    doc_srch.execute(client, get_all=False, count=1)
+    doc_srch.execute(client, get_all=get_all, count=count)
     print("doc_srch has", len(doc_srch.results), "results.")
     print(doc_srch.results[0])
 
 
 def main():
     # ? Search something
-    search_scopus("keuskamp")
+    search_scopus(False, 25)
     # ? Using this to be a core map old data 1-1
     # read_scopus_abstract("85170238281")
 
