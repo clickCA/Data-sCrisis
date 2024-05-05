@@ -10,6 +10,7 @@ from elsapy.elsclient import ElsClient
 from elsapy.elsprofile import ElsAuthor, ElsAffil
 from elsapy.elsdoc import FullDoc, AbsDoc
 from elsapy.elssearch import ElsSearch
+import re
 
 # from bs4 import BeautifulSoup
 
@@ -77,6 +78,17 @@ def read_science_direct_doi(doi):
         print("Read document failed.")
 
 
+def find_scopus_id_in_serch_result(search_result):
+    pattern = r"\d+"
+
+    # Find all numbers in the input string
+    numbers = re.findall(pattern, search_result)
+
+    if numbers:
+        extracted_number = numbers[0]
+        return extracted_number
+
+
 def search_scopus(get_all=False, count=25):
     """search scopus for author
 
@@ -89,12 +101,18 @@ def search_scopus(get_all=False, count=25):
     )
     doc_srch.execute(client, get_all=get_all, count=count)
     print("doc_srch has", len(doc_srch.results), "results.")
-    print(doc_srch.results[0])
+    for doc in doc_srch.results:
+        print("scopus_id_raw", doc["dc:identifier"])
+        scopus_id = find_scopus_id_in_serch_result(doc["dc:identifier"])
+        print("scopus_id", scopus_id)
+        read_scopus_abstract(scopus_id)
+        print("Finished reading scopus")
+        print("=====================================")
 
 
 def main():
     # ? Search something
-    search_scopus(False, 25)
+    search_scopus(False, 5)
     # ? Using this to be a core map old data 1-1
     # read_scopus_abstract("85170238281")
 
