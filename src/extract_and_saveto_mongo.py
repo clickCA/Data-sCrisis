@@ -117,6 +117,7 @@ if __name__ == '__main__':
     MONGO_CONNECT = os.getenv("mongo_connect")
     # Create a MongoDB client
     client = MongoClient(MONGO_CONNECT)
+    
     # Connect to your database
     db = client['scopus_db']
     # Connect to your collection
@@ -149,7 +150,4 @@ if __name__ == '__main__':
             try:
                 collection.insert_one(data_dict)
             except DuplicateKeyError as e:
-                print(f'Duplicate key error: {e._id}')
-        
-            
-        
+                print(f'Duplicate key error: {data_dict['_id']}')
