@@ -3,7 +3,11 @@
 *.xlsx
 *.json
 *.txt
+*.rar
+*.zip
+/data
 !requirements.txt
+/extracted
 
 # Ignore model files
 *.h5
