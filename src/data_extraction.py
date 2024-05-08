@@ -13,6 +13,7 @@ def extract_fields(json_path):
     head = bibrecord.get('head', {}) if bibrecord else {}
     tail = bibrecord.get('tail', {}) if bibrecord else {}
     coredata = abstracts_retrieval_response.get('coredata', {}) if abstracts_retrieval_response else {}
+    sid = coredata.get('dc:identifier', '') if coredata.get('dc:identifier', '') else ''
     authors = abstracts_retrieval_response.get('authors', {}).get('author', []) if abstracts_retrieval_response else []
     bibliography = tail.get('bibliography', {}) if tail else {}
     references = tail.get('bibliography', {}).get('reference', []) if tail else []
@@ -94,7 +95,7 @@ def extract_fields(json_path):
         'affiliations': aff,
         'citedby-count': citedby_count,
         'issn-or-isbn': issn_or_isbn,
-        'eid': eid,
+        'sid': sid,
         'journal-title': journal_title,
         'description': description,
         'publisher': publisher,
@@ -114,7 +115,7 @@ import os
 import json
 if __name__ == '__main__':
     # Define the range of years
-    years = range(2024, 2025)
+    years = range(2018, 2025)
 
     # Initialize an empty DataFrame to store all the data
     all_data = pd.DataFrame()

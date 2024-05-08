@@ -23,7 +23,7 @@ for year in years:
     # Merge the CSV files into a single DataFrame
 
     # Set column 'eid' as index
-    merged_df.set_index('eid', inplace=True)
+    merged_df.set_index('sid', inplace=True)
     # Save the merged DataFrame to a CSV file
     output_file = os.path.join(output_dir, f'{year}.csv')
     merged_df.to_csv(output_file, index=True)
