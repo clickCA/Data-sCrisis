@@ -6,7 +6,7 @@ import pandas as pd
 data_dir = '../data/{year}/'
 
 # Get a list of all the years
-years = [str(year) for year in range(2018, 2024)]  # Replace with your desired range
+years = [str(year) for year in range(2018, 2025)]  # Replace with your desired range
 
 # Iterate over each year
 for year in years:
@@ -16,7 +16,7 @@ for year in years:
 
     # Get a list of all the CSV files for the current year
     csv_files = glob.glob(os.path.join(data_dir.format(year=year), '*.csv'))
-    
+    print(csv_files)
 
     # Merge the CSV files into a single DataFrame
     merged_df = pd.concat([pd.read_csv(file) for file in csv_files])

@@ -6,6 +6,8 @@ def extract_fields(json_path):
 
     # Access relevant data structures within the JSON
     abstracts_retrieval_response = data.get('abstracts-retrieval-response', {}) if data else {}
+    if not abstracts_retrieval_response:
+        abstracts_retrieval_response = data
     item = abstracts_retrieval_response.get('item', {}) if abstracts_retrieval_response else {}
     bibrecord = item.get('bibrecord', {}) if item else {}
     head = bibrecord.get('head', {}) if bibrecord else {}
@@ -112,7 +114,7 @@ import os
 import json
 if __name__ == '__main__':
     # Define the range of years
-    years = range(2018, 2024)
+    years = range(2024, 2025)
 
     # Initialize an empty DataFrame to store all the data
     all_data = pd.DataFrame()
@@ -120,12 +122,12 @@ if __name__ == '__main__':
     # Loop over the years
     for year in years:
         # Get all the JSON files for the year
-        json_files = [f for f in os.listdir(f'../data/{year}') if f.endswith('.json')]
+        json_files = [f for f in os.listdir(f'../Project/{year}') if f.endswith('.json')]
         
         # Loop over the JSON files
         for json_file in json_files:
             # Read the JSON data
-            json_path = f'../data/{year}/{json_file}'
+            json_path = f'../Project/{year}/{json_file}'
             # # Extract the required fields
             data_dict = extract_fields(json_path)
             
