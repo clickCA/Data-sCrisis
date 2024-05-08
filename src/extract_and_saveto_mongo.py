@@ -121,8 +121,6 @@ if __name__ == '__main__':
     db = client['scopus_db']
     # Connect to your collection
     collection = db['scopus_collection']
-    # Define the range of years
-    total_data=[]
     # Loop over the years
     for year in range(2018, 2024):
         # Get all the JSON files for the year
@@ -148,26 +146,10 @@ if __name__ == '__main__':
             #print(data_dict)
             if any(value == '' for value in data_dict.values()):
                 continue
-            total_data.append(data_dict)
-    try:
-        collection.insert_many(total_data)
-    except DuplicateKeyError as e:
-        print(f'Duplicate key error: {e}')
+            try:
+                collection.insert_one(data_dict)
+            except DuplicateKeyError as e:
+                print(f'Duplicate key error: {e._id}')
         
             
         
-
-
-
-
-
-
-
-
-
-# # Load your JSON data
-# with open('your_data.json') as f:
-#     data = json.load(f)
-
-# # Insert the data into the collection
-# collection.insert_many(data)
