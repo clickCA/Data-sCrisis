@@ -6,11 +6,14 @@ def extract_fields(json_path):
 
     # Access relevant data structures within the JSON
     abstracts_retrieval_response = data.get('abstracts-retrieval-response', {}) if data else {}
+    if not abstracts_retrieval_response:
+        abstracts_retrieval_response = data
     item = abstracts_retrieval_response.get('item', {}) if abstracts_retrieval_response else {}
     bibrecord = item.get('bibrecord', {}) if item else {}
     head = bibrecord.get('head', {}) if bibrecord else {}
     tail = bibrecord.get('tail', {}) if bibrecord else {}
     coredata = abstracts_retrieval_response.get('coredata', {}) if abstracts_retrieval_response else {}
+    sid = coredata.get('dc:identifier', '') if coredata.get('dc:identifier', '') else ''
     authors = abstracts_retrieval_response.get('authors', {}).get('author', []) if abstracts_retrieval_response else []
     bibliography = tail.get('bibliography', {}) if tail else {}
     references = tail.get('bibliography', {}).get('reference', []) if tail else []
@@ -92,7 +95,7 @@ def extract_fields(json_path):
         'affiliations': aff,
         'citedby-count': citedby_count,
         'issn-or-isbn': issn_or_isbn,
-        'eid': eid,
+        'sid': sid,
         'journal-title': journal_title,
         'description': description,
         'publisher': publisher,
@@ -112,7 +115,7 @@ import os
 import json
 if __name__ == '__main__':
     # Define the range of years
-    years = range(2018, 2024)
+    years = range(2018, 2025)
 
     # Initialize an empty DataFrame to store all the data
     all_data = pd.DataFrame()
@@ -120,12 +123,12 @@ if __name__ == '__main__':
     # Loop over the years
     for year in years:
         # Get all the JSON files for the year
-        json_files = [f for f in os.listdir(f'../data/{year}') if f.endswith('.json')]
+        json_files = [f for f in os.listdir(f'../Project/{year}') if f.endswith('.json')]
         
         # Loop over the JSON files
         for json_file in json_files:
             # Read the JSON data
-            json_path = f'../data/{year}/{json_file}'
+            json_path = f'../Project/{year}/{json_file}'
             # # Extract the required fields
             data_dict = extract_fields(json_path)
             

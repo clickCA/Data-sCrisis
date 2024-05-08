@@ -6,6 +6,7 @@
 *.rar
 *.zip
 /data
+/Project
 !requirements.txt
 /extracted
 
