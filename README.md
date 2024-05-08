@@ -71,7 +71,7 @@ Some useful tools for viewing JSON data (You can use this to see the whole objec
 You can rerun the data extraction process by running the following command:
 
 ```bash
-sudo sh run_script.sh
+sudo sh src/run_script.sh
 ```
 
 [Explain the methods or algorithms used in your project, including any data analysis or machine learning techniques.]
