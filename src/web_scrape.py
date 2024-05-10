@@ -8,7 +8,7 @@ from elsapy.elsclient import ElsClient
 from elsapy.elsprofile import ElsAuthor, ElsAffil
 from elsapy.elsdoc import FullDoc, AbsDoc
 from elsapy.elssearch import ElsSearch
-
+from pymongo import MongoClient
 # from bs4 import BeautifulSoup
 
 load_dotenv()  # take environment variables from .env.
@@ -24,6 +24,8 @@ FILE_STORE_SCOPUS_IDS = "scopus_ids.json"
 BATCH_SIZE = 100
 ## Initialize client
 client = ElsClient(API_KEY)
+MONGO_CONNECT = os.getenv("mongo_connect")
+client = MongoClient(MONGO_CONNECT)
 
 
 def read_affiliations(affil_id):
@@ -134,11 +136,7 @@ def select_batch(scopus_list, batch_number, batch_size=25):
         batch_size,
     )
     return scopus_list[(batch_number - 1) * batch_size : batch_number * batch_size]
-MONGO_CONNECT = os.getenv("mongo_connect")
-from pymongo import MongoClient
-# Create a MongoDB client
-MONGO_CONNECT = os.getenv("mongo_connect")
-client = MongoClient(MONGO_CONNECT)
+
 
 def is_data_existed(sid,database='scopus_collection', collect='scopus_collection'):
     # Select the database and collection
