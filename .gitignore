@@ -9,7 +9,7 @@
 /Project
 !requirements.txt
 /extracted
-
+/logs/scheduler
 # Ignore model files
 *.h5
 *.pkl

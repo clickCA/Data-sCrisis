@@ -3,15 +3,16 @@ import json
 import logging
 import re
 from pythonjsonlogger import jsonlogger
-from dotenv import load_dotenv
 from elsapy.elsclient import ElsClient
 from elsapy.elsprofile import ElsAuthor, ElsAffil
 from elsapy.elsdoc import FullDoc, AbsDoc
 from elsapy.elssearch import ElsSearch
 from pymongo import MongoClient
-# from bs4 import BeautifulSoup
 
-load_dotenv()  # take environment variables from .env.
+# from bs4 import BeautifulSoup
+from connect_mongo import connect_to_mongo
+
+client = connect_to_mongo()
 logger = logging.getLogger()
 logHandler = logging.StreamHandler()
 formatter = jsonlogger.JsonFormatter()
@@ -25,7 +26,7 @@ BATCH_SIZE = 100
 ## Initialize client
 client = ElsClient(API_KEY)
 MONGO_CONNECT = os.getenv("mongo_connect")
-client = MongoClient(MONGO_CONNECT)
+mongo_client = MongoClient(MONGO_CONNECT)
 
 
 def read_affiliations(affil_id):
@@ -117,6 +118,8 @@ def search_scopus(get_all=False, count=25):
     scopus_ids = []
     for doc in doc_srch.results:
         scopus_id = find_scopus_id_in_serch_result(doc["dc:identifier"])
+        # if is_data_existed(scopus_id):
+        #     continue
         scopus_ids.append(scopus_id)
     return scopus_ids
 
@@ -138,27 +141,37 @@ def select_batch(scopus_list, batch_number, batch_size=25):
     return scopus_list[(batch_number - 1) * batch_size : batch_number * batch_size]
 
 
-def is_data_existed(sid,database='scopus_collection', collect='scopus_collection'):
+def is_data_existed(
+    sid,
+    myClient=mongo_client,
+    database="scopus_db",
+    collection_name="scopus_collection",
+):
     # Select the database and collection
-    db = client[database]  
-    collection = db[collect]  
+    db = myClient[database]
+    collection = db[collection_name]
     result = collection.find_one({"_id": sid})
+    print(result)
     return result is not None
 
 
-def main():
-    # ? Search scopus that published in 2024 and in Thailand
-    scopus_ids = search_scopus(False, 2000)
-    write_scopus_list_to_file(scopus_ids)
-    # ? Find affiliations by ID
-    scopus_list = read_scopus_list_from_file()
-    print(scopus_list)
-    selected_scopus_list = select_batch(scopus_list, 1, BATCH_SIZE)
-    print(selected_scopus_list)
-    selected_scopus_list = select_batch(scopus_list, 1, 1616)
-    for scopus_id in selected_scopus_list:
-        read_scopus_abstract(scopus_id)
+import logging
+
+
+def scrape():
+    try:
+        # ? Search scopus that published in 2024 and in Thailand
+        scopus_ids = search_scopus(False, 2000)
+        write_scopus_list_to_file(scopus_ids)
+        # ? Find affiliations by ID
+        scopus_list = read_scopus_list_from_file()
+        selected_scopus_list = select_batch(scopus_list, 1, BATCH_SIZE)
+        # selected_scopus_list = select_batch(scopus_list, 1, 1616)
+        for scopus_id in selected_scopus_list:
+            read_scopus_abstract(scopus_id)
+    except Exception as e:
+        logging.error(f"Unexpected error in scrape: {str(e)}")
 
 
 if __name__ == "__main__":
-    main()
+    scrape()
