@@ -5,7 +5,7 @@ import re
 from pythonjsonlogger import jsonlogger
 from dotenv import load_dotenv
 from elsapy.elsclient import ElsClient
-from elsapy.elsprofile import ElsAffil
+from elsapy.elsprofile import ElsAuthor, ElsAffil
 from elsapy.elsdoc import FullDoc, AbsDoc
 from elsapy.elssearch import ElsSearch
 
@@ -22,8 +22,6 @@ API_KEY = os.getenv("ELSEVIER_API_KEY")
 TIME_OUT = 10
 FILE_STORE_SCOPUS_IDS = "scopus_ids.json"
 BATCH_SIZE = 100
-SEARCH_PARAMS_ALL = "AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND SUBJAREA ( engi )"
-SEARCH_PARAMS = "AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND SUBJAREA ( engi ) AND RECENT ( 1 )"
 ## Initialize client
 client = ElsClient(API_KEY)
 
@@ -109,7 +107,7 @@ def search_scopus(get_all=False, count=25):
         auth_name (_type_): _description_
     """
     doc_srch = ElsSearch(
-        SEARCH_PARAMS_ALL,
+        "AFFILCOUNTRY ( thailand ) AND PUBYEAR > 2023 AND SUBJAREA ( engi )",
         "scopus",
     )
     doc_srch.execute(client, get_all=get_all, count=count)
@@ -121,7 +119,7 @@ def search_scopus(get_all=False, count=25):
     return scopus_ids
 
 
-def select_batch(scopus_list, batch_number, batch_size=25, last=False):
+def select_batch(scopus_list, batch_number, batch_size=25):
     if batch_number < 1:
         raise ValueError("batch_number should be greater than 0")
     if batch_size < 1:
@@ -135,24 +133,33 @@ def select_batch(scopus_list, batch_number, batch_size=25, last=False):
         "batch size:",
         batch_size,
     )
-    if last:
-        if last == 1:  # noqa: E712
-            return scopus_list[-1 : -batch_size - 1 : -1]
-        return scopus_list[-1:-last:-1]
     return scopus_list[(batch_number - 1) * batch_size : batch_number * batch_size]
+MONGO_CONNECT = os.getenv("mongo_connect")
+from pymongo import MongoClient
+# Create a MongoDB client
+MONGO_CONNECT = os.getenv("mongo_connect")
+client = MongoClient(MONGO_CONNECT)
+
+def is_data_existed(sid,database='scopus_collection', collect='scopus_collection'):
+    # Select the database and collection
+    db = client[database]  
+    collection = db[collect]  
+    result = collection.find_one({"_id": sid})
+    return result is not None
 
 
 def main():
     # ? Search scopus that published in 2024 and in Thailand
-    # scopus_ids = search_scopus(False)
-    # write_scopus_list_to_file(scopus_ids)
+    scopus_ids = search_scopus(False, 2000)
+    write_scopus_list_to_file(scopus_ids)
     # ? Find affiliations by ID
     scopus_list = read_scopus_list_from_file()
-    selected_scopus_list = select_batch(
-        scopus_list=scopus_list, batch_number=1, batch_size=BATCH_SIZE, last=5
-    )
-    # for scopus_id in selected_scopus_list:
-    #     read_scopus_abstract(scopus_id)
+    print(scopus_list)
+    selected_scopus_list = select_batch(scopus_list, 1, BATCH_SIZE)
+    print(selected_scopus_list)
+    selected_scopus_list = select_batch(scopus_list, 1, 1616)
+    for scopus_id in selected_scopus_list:
+        read_scopus_abstract(scopus_id)
 
 
 if __name__ == "__main__":
